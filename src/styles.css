@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import url(https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap);
+
+@theme {
+  --bg-dark-gradient: linear-gradient(to bottom right, #0f172a, #020617);
+  --font-roboto-mono: "Roboto Mono", monospace;
+}
+
+html, body {
+  @apply h-full w-full m-0 p-0 overscroll-none;
+}
+
+html {
+  background: var(--bg-dark-gradient);
+}
+
+body {
+  @apply bg-transparent;
+}
