@@ -1,10 +1,10 @@
 <header class="w-full px-6 py-4 flex justify-between items-center bg-transparent">
-    <div  class="text-xl font-bold max-w-[50px]">lucas codes stuff.</div>
-    <nav class="flex space-x-4">
+    <div  class="text-lg font-bold max-w-[50px]">lucas codes stuff.</div>
+    <nav class="flex space-x-6">
         <div *ngFor="let link of navItems; let i = index">
           <a
             #navLink
-            class="inline-block transform transition-transform duration-200 hover:underline"
+            class="inline-block transition-transform duration-300 font-[500] text-white"
             [routerLink]="link === 'Home' ? '/' : '/' + link.toLowerCase()"
             (mouseenter)="animateNavLink(i)"
             (mouseleave)="resetNavLink(i)"

@@ -21,41 +21,48 @@ export class HeaderComponent implements AfterViewInit {
 
     gsap.from(navEls, {
       opacity: 0,
-      duration: 0.6,
+      duration: 1.2,
       stagger: 0.1,
       ease: 'power2.out',
     });  
   }
 
   animateNavLink(index: number) {
-    const el = this.navLinks.toArray()[index];
+    const el = this.navLinks.toArray()[index]?.nativeElement;
     if (!el) return;
   
-    // Kill existing animation if somehow still running
     this.hoverAnimations[index]?.kill();
-
-    gsap.set(el.nativeElement, { scale: 1 });
   
-    // Create a pulsing animation
-    this.hoverAnimations[index] = gsap.to(el.nativeElement, {
-      scale: 1.6, 
-      duration: 0.5,     
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
+    this.hoverAnimations[index] = gsap.to(el, {
+      color: 'transparent',
+      backgroundImage: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
+      backgroundClip: 'text',
+      WebkitBackgroundClip: 'text',
+      duration: 0.4,
+      ease: 'power2.out',
+      onStart: () => {
+        el.classList.add('bg-clip-text'); // Tailwind class
+      },
     });
   }
 
   resetNavLink(index: number) {
-    const el = this.navLinks.toArray()[index];
+    const el = this.navLinks.toArray()[index]?.nativeElement;
     if (!el) return;
   
-    // Kill pulse and reset scale
     this.hoverAnimations[index]?.kill();
-    gsap.to(el.nativeElement, {
-      scale: 1,
-      duration: 0.2,
-      ease: 'power2.out',
+
+    gsap.set(el, {
+      color: '#ffffff',
+    });
+
+    gsap.to(el, {
+      backgroundImage: 'none',
+      duration: 0.3,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        el.classList.remove('bg-clip-text');
+      },
     });
   }
   

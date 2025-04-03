@@ -1,1 +1,76 @@
-<p>projects works!</p>
+<div
+  class="relative h-full flex items-center justify-center overflow-visible w-full"
+>
+  <div
+    class="relative w-full h-full flex items-center justify-center"
+    #carouselWrapper
+  >
+    <!-- Floating shadow underneath center -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-white/10 blur-2xl rounded-full"></div>
+    <div
+      *ngFor="let project of projects; let i = index"
+      class="absolute transition-transform duration-500 ease-in-out"
+      [ngClass]="getCardClass(i)"
+      [style.zIndex]="getZIndex(i)"
+    >
+    <span class="w-full text-center inline-block mb-3">{{project.title}}</span>
+      <img
+        [src]="project.image"
+        class="rounded-xl shadow-2xl object-cover w-[300px] h-[400px] hover:cursor-pointer"
+        [alt]="project.title"
+        (mousemove)="onCardMouseMove($event, cardElement)"
+        (mouseleave)="onCardMouseLeave(cardElement)"
+        #cardElement
+      />
+    </div>
+  </div>
+  <button
+    class="h-[48px] w-[48px] absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center hover:cursor-pointer"
+    (click)="next()"
+  >
+
+    <!-- Soft blurry halo -->
+    <div
+      class="absolute w-[72px] h-[72px] bg-white/10 blur-xl rounded-full -z-10"
+    ></div>
+
+    <!-- Icon -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      class="h-10 w-10"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+
+  <button
+    class="h-[48px] w-[48px] absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center hover:cursor-pointer"
+    (click)="prev()"
+  >
+
+    <!-- Soft blurry halo -->
+    <div
+      class="absolute w-[72px] h-[72px] bg-white/10 blur-xl rounded-full -z-10"
+    ></div>
+
+    <!-- Icon -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      class="h-10 w-10 text-white z-10"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+</div>

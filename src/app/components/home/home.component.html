@@ -1,3 +1,44 @@
-<div class="h-full flex justify-center items-center">
-    <p>home works!</p>
+<div
+  class="flex-1 flex flex-col justify-between items-center font-mono text-xl text-white px-4 py-10"
+>
+  <!-- Typing animation block (top/centered visually) -->
+  <div class="flex flex-col items-center gap-2">
+    <span class="relative">
+      <span #line1 class="inline-block min-w-[1ch]"></span>
+      <span #cursor1 class="absolute left-full animate-pulse">|</span>
+    </span>
+    <span class="relative">
+        <span #line2Start></span
+        ><span
+          #line2Highlight
+          class="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent"
+        ></span>
+        <span #cursor2 class="absolute left-full animate-pulse">|</span>
+    </span>
+    <span class="relative">
+      <span #line3 class="inline-block min-w-[1ch]"></span>
+      <span #cursor3 class="absolute left-full animate-pulse">|</span>
+    </span>
+  </div>
+
+  <!-- Bio block (middle of screen) -->
+  <div class="text-base flex flex-col items-center gap-2">
+    <span class="relative">
+        <span #bioLine1 class="inline-block min-w-[1ch]"></span>
+        <span #bioCursor1 class="absolute left-full animate-pulse">|</span>
+    </span>
+    <span class="relative">
+        <span #bioLine2 class="inline-block min-w-[1ch]"></span>
+        <span #bioCursor2 class="absolute left-full animate-pulse">|</span>
+    </span>
+    <span class="relative">
+        <span #bioLine3 class="inline-block min-w-[1ch]"></span>
+        <span #bioCursor3 class="absolute left-full animate-pulse">|</span>
+    </span>
+  </div>
+
+  <!-- Time-based message (bottom of screen) -->
+  <div class="text-sm text-gray-400">
+    <p>{{ message }}</p>
+  </div>
 </div>

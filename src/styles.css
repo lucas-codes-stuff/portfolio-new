@@ -7,7 +7,7 @@
 }
 
 html, body {
-  @apply h-full w-full m-0 p-0 overscroll-none;
+  @apply w-full m-0 p-0 overscroll-none;
 }
 
 html {
@@ -17,3 +17,14 @@ html {
 body {
   @apply bg-transparent;
 }
+
+html, body {
+    height: 100%;
+  }
+  
+  app-root {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+  }
