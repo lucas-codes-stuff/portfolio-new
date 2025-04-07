@@ -1,1 +1,17 @@
-<p>blog works!</p>
+<div class="px-6 py-12 max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">blog posts.</h1>
+    <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" *ngIf="posts">
+      <div
+        *ngFor="let post of posts"
+        class="rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300 bg-white/5 backdrop-blur-md cursor-pointer"
+        [routerLink]="['/blog', post.slug]"
+      >
+        <img [src]="post.image" class="h-48 w-full object-cover" />
+        <div class="p-4 text-white">
+          <h2 class="text-xl font-semibold">{{ post.title }}</h2>
+          <p class="text-sm text-gray-400">{{ post.date }}</p>
+          <p class="mt-2 text-gray-300 text-sm">{{ post.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>

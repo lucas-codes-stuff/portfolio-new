@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 
 gsap.registerPlugin(TextPlugin);
 
-
 @Component({
   selector: 'app-home',
   standalone: true,

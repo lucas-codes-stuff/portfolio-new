@@ -1,41 +1,54 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { gsap } from 'gsap';
 import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
   selector: 'app-projects',
   imports: [CommonModule],
   templateUrl: './projects.component.html',
-  styleUrl: './projects.component.css'
+  styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent {
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  @ViewChild('modalCard') modal!: ElementRef;
+  @ViewChild('modalBackdrop') backdrop!: ElementRef;
   activeIndex = 0
+  private flashTween: gsap.core.Tween | null = null;
+  selectedProject: any = null;
   projects = [
     {
-      title: 'AI Writing Assistant',
-      image: 'https://picsum.photos/id/1015/400/250',
-      description: 'A smart text generation tool using GPT-4 and TypeScript.'
+      title: 'chromatica',
+      image: '/assets/projects/chromatica.jpg',
+      description: 'AI-driven music generation mobile app using Angular, Ionic, Supabase, and TensorFlow.js. recently depricated due to Spotify API changes.',
+      links: [ { url: 'https://github.com/lucas-codes-stuff/chromatica', label: 'view project' } ]
     },
     {
-      title: 'Portfolio Website',
-      image: 'https://picsum.photos/id/1025/400/250',
-      description: 'Personal developer portfolio built with Angular and GSAP animations.'
+      title: 'drisca',
+      image: '/assets/projects/drisca.jpg',
+      description: 'mobile app focused on helping users discover their limitations and improve daily habits through daily prompts and posts after completion. made with React Native, Expo, and Supabase.',
+      links: [ { url: '', label: 'in progress! (repo is private)' } ]
     },
     {
-      title: 'Fitness Tracker App',
-      image: 'https://picsum.photos/id/1035/400/250',
-      description: 'A mobile-friendly app for logging workouts and syncing wearables.'
+      title: 'friend matching app',
+      image: '/assets/projects/social-app.png',
+      description: 'Live crypto dashboard using real-time APIs.',
+      links: [ { url: '', label: 'in progress! (repo is private)' } ]
     },
     {
-      title: 'Crypto Price Tracker',
-      image: 'https://picsum.photos/id/1045/400/250',
-      description: 'Live crypto dashboard using real-time APIs.'
+      title: 'du file system',
+      image: '/assets/projects/dufs.png',
+      description: 'a file system (terminal based) built with C# and .NET Core, using a custom file system driver and a custom file system API.',
+      links: [ { url: 'https://github.com/lucas-codes-stuff/du-file-system', label: 'view project' } ]
     },
     {
-      title: 'Blog CMS',
-      image: 'https://picsum.photos/id/1055/400/250',
-      description: 'Headless CMS built with Firebase and Angular.'
-    }
+      title: 'dog and cat classifier',
+      image: '/assets/projects/dog-cat.png',
+      description: 'small React and FastAPI AI project to classify images of dogs and cats.',
+      links: [ { url: 'https://github.com/lucas-codes-stuff/dog-cat-classify', label: "view project" } ]
+    },
   ];  
 
   getCardClass(index: number) {
@@ -96,5 +109,78 @@ export class ProjectsComponent {
       duration: 0.5,
       ease: 'power2.out'
     });
+  }
+
+  onArrowHover(arrow: HTMLElement) {
+    gsap.to(arrow, {
+      scale: 1.2,
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  
+    this.flashTween = gsap.to(arrow, {
+      opacity: 0.5,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      repeat: -1,
+      yoyo: true
+    });
+  }
+  
+  onArrowLeave(arrow: HTMLElement) {
+    gsap.to(arrow, {
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  
+    // Kill the flashing animation
+    this.flashTween?.kill();
+    this.flashTween = null;
+  
+    // Reset opacity
+    gsap.to(arrow, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'power2.out'
+    });
+  }
+  
+  openModal(project: any) {
+    this.selectedProject = project;
+    this.cdr.detectChanges(); // Ensure the modal is updated with the selected project
+    // Animate the modal opening
+    requestAnimationFrame(() => {
+      if (this.modal && this.backdrop) {
+        gsap.fromTo(
+          this.modal.nativeElement,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.5 }
+        );
+        gsap.fromTo(
+          this.backdrop.nativeElement,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5 }
+        );
+      }
+    });
+  }
+  
+  closeModal() {
+    // Animate the modal closing
+    if (this.modal) {
+      gsap.to(this.modal.nativeElement, {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.3,
+        onComplete: () => {
+          this.selectedProject = null; // Reset after animation
+        }
+      });
+      gsap.to(this.backdrop.nativeElement, {
+        opacity: 0,
+        duration: 0.3
+      });
+    }
   }
 }

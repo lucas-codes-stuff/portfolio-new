@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import url(https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap);
+@plugin "@tailwindcss/typography";
 
 @theme {
   --bg-dark-gradient: linear-gradient(to bottom right, #0f172a, #020617);
@@ -19,12 +20,16 @@ body {
 }
 
 html, body {
-    height: 100%;
+    min-height: 100%;
   }
   
   app-root {
     display: flex;
-    height: 100%;
-    width: 100%;
     flex-direction: column;
   }
+
+/* hide page scrollbar */
+html { scrollbar-width: none; } /* Firefox */
+body { -ms-overflow-style: none; } /* IE and Edge */
+body::-webkit-scrollbar, body::-webkit-scrollbar-button { display: none; } /* Chrome */
+/* end hide page scrollbar */

@@ -1,34 +1,82 @@
+<!-- Modal Backdrop -->
 <div
-  class="relative h-full flex items-center justify-center overflow-visible w-full"
+  #modalBackdrop
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000]"
+  *ngIf="selectedProject"
+  (click)="closeModal()"
 >
+  <!-- Modal Card -->
+  <div
+    #modalCard
+    class="bg-zinc-900 rounded-xl p-6 max-w-md w-full text-white relative shadow-xl modal"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      class="absolute top-3 right-4 text-white text-2xl hover:cursor-pointer"
+      (click)="closeModal()"
+    >
+      &times;
+    </button>
+    <h2 class="text-2xl font-bold mb-4">{{ selectedProject.title }}</h2>
+    <img
+      [src]="selectedProject.image"
+      alt="Project"
+      class="w-full h-48 object-cover rounded mb-4"
+    />
+    <p class="text-sm text-gray-300">
+      {{ selectedProject.description }}
+    </p>
+    <div class="mt-4" *ngIf="selectedProject.links?.length">
+      <a
+        *ngFor="let link of selectedProject.links"
+        [href]="link.url"
+        target="_blank"
+        class="text-blue-400 hover:underline mr-2"
+        >{{ link.label }}</a
+      >
+    </div>
+  </div>
+</div>
+
+<div
+  class="relative h-full flex flex-col items-center justify-center overflow-visible w-full"
+>
+  <h1 class="text-3xl font-bold text-white mt-4 mb-0 p-0">recent projects.</h1>
   <div
     class="relative w-full h-full flex items-center justify-center"
     #carouselWrapper
   >
     <!-- Floating shadow underneath center -->
-    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-white/10 blur-2xl rounded-full"></div>
+    <div
+      class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[500px] h-[150px] bg-white/10 blur-2xl rounded-full"
+    ></div>
     <div
       *ngFor="let project of projects; let i = index"
       class="absolute transition-transform duration-500 ease-in-out"
       [ngClass]="getCardClass(i)"
       [style.zIndex]="getZIndex(i)"
     >
-    <span class="w-full text-center inline-block mb-3">{{project.title}}</span>
+      <span class="w-full text-center inline-block mb-3">{{
+        project.title
+      }}</span>
       <img
         [src]="project.image"
-        class="rounded-xl shadow-2xl object-cover w-[300px] h-[400px] hover:cursor-pointer"
+        class="rounded-xl shadow-2xl object-cover w-[350px] h-[400px] hover:cursor-pointer"
         [alt]="project.title"
-        (mousemove)="onCardMouseMove($event, cardElement)"
+        (mousemove)="i === activeIndex && onCardMouseMove($event, cardElement)"
         (mouseleave)="onCardMouseLeave(cardElement)"
+        (click)="i === activeIndex && openModal(project)"
         #cardElement
       />
     </div>
   </div>
   <button
+    #nextArrow
     class="h-[48px] w-[48px] absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center hover:cursor-pointer"
     (click)="next()"
+    (mouseenter)="onArrowHover(nextArrow)"
+    (mouseleave)="onArrowLeave(nextArrow)"
   >
-
     <!-- Soft blurry halo -->
     <div
       class="absolute w-[72px] h-[72px] bg-white/10 blur-xl rounded-full -z-10"
@@ -39,6 +87,7 @@
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="currentColor"
+      fill-opacity="0.25"
       class="h-10 w-10"
     >
       <path
@@ -50,10 +99,12 @@
   </button>
 
   <button
+    #prevArrow
     class="h-[48px] w-[48px] absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center hover:cursor-pointer"
     (click)="prev()"
+    (mouseenter)="onArrowHover(prevArrow)"
+    (mouseleave)="onArrowLeave(prevArrow)"
   >
-
     <!-- Soft blurry halo -->
     <div
       class="absolute w-[72px] h-[72px] bg-white/10 blur-xl rounded-full -z-10"
@@ -64,7 +115,8 @@
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="currentColor"
-      class="h-10 w-10 text-white z-10"
+      fill-opacity="0.25"
+      class="h-10 w-10"
     >
       <path
         fill-rule="evenodd"
