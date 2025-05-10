@@ -1,3 +1,16 @@
 [
-    {"slug": "chromatica-challenges", "title": "🎵 The Rise and Pause of Chromatica", "date": "2025-4-7", "description": "Building (and Almost Launching) a Mood-Based Music Generator", "image": "/assets/projects/chromatica.jpg"}
+  {
+    "slug": "chromatica-challenges",
+    "title": "🎵 The Rise and Pause of Chromatica",
+    "date": "2025-4-7",
+    "description": "Building (and Almost Launching) a Mood-Based Music Generator",
+    "image": "/assets/projects/chromatica.jpg"
+  },
+  {
+    "slug": "vibe_coding_rant",
+    "title": "“Vibe Coding” and the Myth of Agentic AI",
+    "date": "2025-5-9",
+    "description": "A Rant (and a Reality Check)",
+    "image": "/assets/projects/vibe-coding.png"
+  }
 ]

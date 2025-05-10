@@ -1,4 +1,5 @@
 # 🎵 The Rise and Pause of Chromatica  
+
 ## Building (and Almost Launching) a Mood-Based Music Generator
 
 ### ✨ The Dream
@@ -96,6 +97,7 @@ Chromatica may not have launched, but it’s already shaped the next version of 
 Chromatica was a bold idea. And even though it didn’t cross the finish line, it changed how I think about building apps.
 
 It reminded me that:
+
 - **Great projects don’t have to be published to be powerful**
 - **The right collaborator makes everything better**
 - **And even when APIs break, your momentum doesn’t have to**
