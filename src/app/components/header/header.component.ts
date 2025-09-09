@@ -12,7 +12,12 @@ import { RouterModule } from '@angular/router';
 })
 export class HeaderComponent implements AfterViewInit {
   @ViewChildren('navLink') navLinks!: QueryList<ElementRef>;
-  navItems: string[] = ['home', 'projects', 'blog'];
+  navItems: string[] = ['home', 'projects', 'blog', 'have some fun!'];
+
+  routeMap: { [key: string]: string } = {
+    'have some fun!': 'funwithart'
+  };
+
   private hoverAnimations: gsap.core.Tween[] = [];
 
   ngAfterViewInit() {

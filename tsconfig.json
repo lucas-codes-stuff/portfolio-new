@@ -13,15 +13,24 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022",
+    "baseUrl": ".",
+    "paths": {
+      "p5": ["node_modules/@types/p5/index.d.ts"],
+      "p5/global": ["node_modules/@types/p5/global.d.ts"]
+    },
+    "typeRoots": ["node_modules/@types"],
+    "types": ["p5", "p5/global"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["src/test.ts", "**/*.spec.ts"]
 }

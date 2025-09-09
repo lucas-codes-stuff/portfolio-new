@@ -1,0 +1,9 @@
+canvas {
+    display: block;
+}
+
+.is-initial-hidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  will-change: transform, opacity;
+}

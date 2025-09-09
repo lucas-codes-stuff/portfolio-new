@@ -1,0 +1,57 @@
+<div
+  #canvasContainer
+  class="fixed inset-0 w-screen h-screen z-40 pointer-events-auto"
+></div>
+
+<!-- Overlay caption (clicks pass through) -->
+<p
+  #caption
+  class="is-initial-hidden fixed bottom-[20%] left-1/2 -translate-x-1/2 z-50 opacity-70 text-[0.9rem] text-center pointer-events-none"
+>
+  {{ effectCaptions[ui.effect] }}
+</p>
+
+<div
+  #controlsContainer
+  *ngIf="controlsVisible"
+  class="is-initial-hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 backdrop-blur-md rounded-lg px-4 py-3 flex items-center gap-4 text-white pointer-events-auto"
+>
+  <!-- Speed -->
+  <label class="text-sm whitespace-nowrap">speed</label>
+  <input
+    type="range"
+    min="0"
+    max="100"
+    step="1"
+    [(ngModel)]="ui.speed"
+    (input)="onSpeedChange()"
+    class="w-56 accent-indigo-400"
+  />
+
+  <!-- Color (hue) -->
+  <label class="text-sm whitespace-nowrap">color</label>
+  <input
+    type="range"
+    min="0"
+    max="360"
+    step="1"
+    [(ngModel)]="ui.hue"
+    (input)="onHueChange()"
+    class="w-56 color-input"
+    [style.--hue]="ui.hue"
+  />
+</div>
+
+<!-- Mode Switcher -->
+<div class="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-50">
+  <div class="flex gap-6 text-white">
+    <span
+      *ngFor="let effect of effectArray"
+      (click)="onEffectSelect(effect, $event)"
+      [class.font-bold]="ui.effect === effect"
+      class="effect-item inline-block cursor-pointer text-sm transition"
+    >
+      {{ effect }}
+    </span>
+  </div>
+</div>
