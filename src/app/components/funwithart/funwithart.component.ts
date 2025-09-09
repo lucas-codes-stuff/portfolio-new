@@ -27,6 +27,8 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef;
   @ViewChild('controlsContainer') controlsContainer!: ElementRef<HTMLElement>;
   @ViewChild('caption') caption!: ElementRef<HTMLElement>;
+  @ViewChild('mode') mode!: ElementRef<HTMLElement>;
+  private controlsTween: gsap.core.Timeline | null = null;
   private animationService = inject(AnimationService);
   private destroy$ = new Subject<void>();
   private p5Instance: P5 | null = null;
@@ -34,6 +36,19 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
     speed: 1,
     hue: 200,
     effect: "ripple n' particles",
+    draw: {
+      brushSize: 8,
+      opacity: 0.9,
+      smoothing: 0.3, // 0..1
+      trail: 0.5,     // 0..1
+    },
+    gravity: {
+      strength: 1.2,      // force multiplier
+      radius: 120,        // interaction radius px
+      falloff: 'quadratic' as 'linear' | 'quadratic' | 'inverse',
+      damping: 0.02,      // velocity drag
+      maxWells: 2,
+    },
   };
   globalMaxLife = 60;
   globalInnerColor = this.hueToHex(this.ui.hue, 95, 65);
@@ -52,6 +67,8 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
     draw: 'drag to paint trails 🎨',
     gravity: 'click to place a gravity well 🌀',
   };
+
+  displayedCaption = this.effectCaptions[this.ui.effect] || '';
 
   controlsVisible = true;
 
@@ -98,14 +115,16 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
     gsap.killTweensOf([
       this.caption.nativeElement,
       this.controlsContainer?.nativeElement,
+      this.mode.nativeElement,
     ]);
 
     this.caption.nativeElement.classList.remove('is-initial-hidden');
     this.controlsContainer?.nativeElement.classList.remove('is-initial-hidden');
+    this.mode.nativeElement.classList.remove('is-initial-hidden');
 
     // Clear any residual styles from route animations
     gsap.set(
-      [this.caption.nativeElement, this.controlsContainer?.nativeElement],
+      [this.caption.nativeElement, this.controlsContainer?.nativeElement, this.mode.nativeElement],
       {
         clearProps: 'transform, opacity',
       }
@@ -133,6 +152,22 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
       );
     }
 
+    tl.set(this.mode.nativeElement, {
+      opacity: 0,
+      y: -6,
+      force3D: true,
+    });
+
+    // Animate mode switcher
+    tl.to(this.mode.nativeElement, {
+      opacity: 1,
+      y: 0,
+      duration: 0.35,
+      ease: 'power2.out',
+      force3D: true,
+      overwrite: 'auto',
+    });
+
     // Animate caption
     tl.to(this.caption.nativeElement, {
       opacity: 0.7,
@@ -158,7 +193,108 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
         '-=0.2'
       );
     }
+
+    this.initControlsPanels();
   }
+
+  private initControlsPanels() {
+    const wrap = this.controlsContainer?.nativeElement;
+    if (!wrap) return;
+
+    const sizer = wrap.querySelector<HTMLElement>('.sizer');
+    const idMap: Record<string, string> = {
+      "ripple n' particles": 'panel-ripple',
+      draw: 'panel-draw',
+      gravity: 'panel-gravity',
+    };
+    const currentId = idMap[this.ui.effect] || 'panel-ripple';
+
+    const panels = Array.from(wrap.querySelectorAll<HTMLElement>('.panel'));
+    panels.forEach(p => {
+      const active = p.id === currentId;
+      p.classList.toggle('is-active', active);
+      p.style.visibility = active ? 'visible' : 'hidden';
+      p.style.pointerEvents = active ? 'auto' : 'none';
+      p.style.opacity = active ? '1' : '0';
+    });
+
+    // lock sizer to current content height
+    const activePanel = wrap.querySelector<HTMLElement>(`#${currentId}`);
+    if (sizer && activePanel) {
+      sizer.style.height = `${activePanel.offsetHeight}px`;
+    }
+  }
+
+
+  private swapControlsPanel(nextPanelId: string) {
+    const wrap = this.controlsContainer?.nativeElement as HTMLElement;
+    if (!wrap) return;
+
+    const sizer = wrap.querySelector<HTMLElement>('.sizer');
+    if (!sizer) return;
+
+    const panels = Array.from(wrap.querySelectorAll<HTMLElement>('.panel'));
+    const next = wrap.querySelector<HTMLElement>(`#${CSS.escape(nextPanelId)}`);
+    if (!next) return;
+
+    // currently active panel (by class)
+    const prev = panels.find(p => p.classList.contains('is-active'));
+
+    // heights
+    const startH = sizer.offsetHeight;
+
+    // ensure next is measurable (visible for measure but transparent)
+    next.style.visibility = 'visible';
+    const prevOpacity = next.style.opacity;
+    next.style.opacity = '0';
+    const endH = next.offsetHeight || 0;
+
+    // kill any running timeline
+    this.controlsTween?.kill();
+
+    // timeline: cross-fade and height tween on sizer
+    this.controlsTween = gsap.timeline({ defaults: { ease: 'power2.out' } })
+      // lock sizer height so we can animate between fixed numbers
+      .set(sizer, { height: startH })
+      // prep next as active (so it can fade in)
+      .add(() => {
+        next.classList.add('is-active');
+        next.style.pointerEvents = 'auto';
+      }, 0)
+      // fade out prev
+      .to(prev || {}, {
+        opacity: 0,
+        duration: 0.25,
+        onComplete: () => {
+          if (prev) {
+            prev.classList.remove('is-active');
+            prev.style.visibility = 'hidden';
+            prev.style.pointerEvents = 'none';
+            prev.style.opacity = '0';
+          }
+        }
+      }, 0)
+      // fade in next
+      .to(next, {
+        opacity: 1,
+        duration: 0.35,
+        onStart: () => {
+          next.style.visibility = 'visible';
+        },
+        onComplete: () => {
+          // restore whatever opacity inline value it had before measure (usually none)
+          if (prevOpacity === '') next.style.removeProperty('opacity');
+        }
+      }, 0.1)
+      // animate sizer height (this is the important part)
+      .to(sizer, { height: endH, duration: 0.4 }, 0)
+      // keep sizer height at the end (DON'T clear it)
+      .add(() => {
+        // leave sizer.style.height at its computed px,
+        // so the next swap reads the correct start height
+      });
+  }
+
 
   //hover effect for the effect selector
   onEffectHover(event: MouseEvent) {
@@ -216,13 +352,41 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEffectSelect(effect: string, event: Event) {
-    this.ui.effect = effect;
-
     // Kill old animations
     gsap.killTweensOf('.effect-item');
 
     const el = event.currentTarget as HTMLElement;
     if (!el) return;
+
+    this.ui.effect = effect;
+    //swap the controls panel
+    const idMap: Record<string, string> = {
+      "ripple n' particles": 'panel-ripple',
+      draw: 'panel-draw',
+      gravity: 'panel-gravity',
+    };
+
+    this.swapControlsPanel(idMap[effect]);
+
+    //animate caption change
+    const captionText = this.effectCaptions[effect] || '';
+    gsap.to(this.caption.nativeElement, {
+      opacity: 0,
+      y: -6,
+      duration: 0.25,
+      ease: 'power2.in',
+      force3D: true,
+      onComplete: () => {
+        this.displayedCaption = captionText;
+        gsap.to(this.caption.nativeElement, {
+          opacity: 0.7,
+          y: 0,
+          duration: 0.35,
+          ease: 'power2.out',
+          force3D: true,
+        });
+      },
+    });
 
     // Reset all to normal
     document
@@ -250,6 +414,19 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSpeedChange() {
     this.globalMaxLife = Math.max(20, 120 - this.ui.speed * 10);
+  }
+
+  onDrawChange() {
+  // TODO: wire these into your p5 draw mode
+  // e.g., update brush sprite/alpha, smoothing params, etc.
+  }
+
+  onGravityChange() {
+    // TODO: pass to your p5 gravity solver
+  }
+
+  clearGravityWells() {
+    // TODO: implement in p5 sketch (e.g., wells.length = 0)
   }
 
   hueToHex(h: number, s: number, l: number): string {
@@ -297,6 +474,10 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     const sketch = (s: p5) => {
+      let drawLayer: p5.Graphics;
+      let isDrawing = false;
+      let lastX = 0, lastY = 0;
+      let sx = 0, sy = 0; // for smoothing
       let sprite: p5.Graphics | null = null; // cached gradient circle
       const ripples: Ripple[] = [];
       const particles: Particle[] = [];
@@ -305,6 +486,12 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
       let makeSprite: (inner: string, outer: string) => void;
 
       s.setup = () => {
+        drawLayer = s.createGraphics(s.windowWidth, s.windowHeight);
+        drawLayer.pixelDensity(1);
+        drawLayer.noFill();
+        drawLayer.strokeCap(s.ROUND);
+        drawLayer.strokeJoin(s.ROUND);
+
         s.pixelDensity(1); // perf: avoid HiDPI overdraw
         s.createCanvas(parent.clientWidth, parent.clientHeight);
         s.noStroke();
@@ -331,6 +518,17 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
       };
 
       (s as any).makeSprite = makeSprite; // expose to Angular component
+
+      function resizeDrawLayer(w: number, h: number) {
+        const tmp = s.createGraphics(w, h);
+        tmp.pixelDensity(1);
+        tmp.image(drawLayer, 0, 0, w, h);
+        drawLayer.remove();
+        drawLayer = tmp;
+        drawLayer.noFill();
+        drawLayer.strokeCap(s.ROUND);
+        drawLayer.strokeJoin(s.ROUND);
+      }
 
       function spawnParticles(x: number, y: number) {
         for (let i = 0; i < 20; i++) {
@@ -365,8 +563,31 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
         return `rgba(${r},${g},${b},${a})`;
       }
 
+      function pointerInCanvas() {
+        return (
+          s.mouseX >= 0 &&
+          s.mouseY >= 0 &&
+          s.mouseX <= s.width &&
+          s.mouseY <= s.height
+        );
+      }
+
+      function beginStroke(x: number, y: number) {
+        isDrawing = true;
+        lastX = sx = x;
+        lastY = sy = y;
+      }
+
+      function drawSegment(x0: number, y0: number, x1: number, y1: number) {
+        drawLayer.line(x0, y0, x1, y1);
+      }
+
+      function endStroke() {
+        isDrawing = false;
+      }
+
       s.draw = () => {
-        s.clear(); // keep canvas transparent over your page
+        if (this.ui.effect !== 'draw') s.clear(); // keep canvas transparent over page
         // update/draw
         for (let i = ripples.length - 1; i >= 0; i--) {
           const r = ripples[i];
@@ -403,16 +624,12 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
             particles.splice(i, 1);
           }
         }
+
+        if (drawLayer) s.image(drawLayer, 0, 0);
       };
 
       s.mousePressed = () => {
-        if (
-          s.mouseX < 0 ||
-          s.mouseY < 0 ||
-          s.mouseX > s.width ||
-          s.mouseY > s.height
-        )
-          return;
+        if (!pointerInCanvas()) return;
         switch (this.ui.effect) {
           case "ripple n' particles":
             console.log('Effect:', this.ui.effect);
@@ -426,6 +643,23 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
               spawnParticles(s.mouseX, s.mouseY);
             }
             break;
+          case 'draw':
+            beginStroke(s.mouseX, s.mouseY);
+            break;
+        }
+      };
+
+      s.mouseDragged = () => {
+        if (this.ui.effect !== 'draw' || !isDrawing || !pointerInCanvas()) return;
+
+        drawSegment(lastX, lastY, s.mouseX, s.mouseY);
+        lastX = s.mouseX;
+        lastY = s.mouseY;
+      };
+
+      s.mouseReleased = () => {
+        if (this.ui.effect === 'draw') {
+          endStroke();
         }
       };
 

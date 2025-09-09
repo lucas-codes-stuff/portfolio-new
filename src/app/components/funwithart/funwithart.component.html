@@ -1,49 +1,221 @@
+<!-- Fullscreen canvas -->
 <div
   #canvasContainer
   class="fixed inset-0 w-screen h-screen z-40 pointer-events-auto"
 ></div>
 
-<!-- Overlay caption (clicks pass through) -->
+<!-- Caption (click-through) -->
 <p
   #caption
   class="is-initial-hidden fixed bottom-[20%] left-1/2 -translate-x-1/2 z-50 opacity-70 text-[0.9rem] text-center pointer-events-none"
 >
-  {{ effectCaptions[ui.effect] }}
+  {{ displayedCaption }}
 </p>
 
+<!-- Controls WRAPPER (always mounted) -->
 <div
   #controlsContainer
-  *ngIf="controlsVisible"
-  class="is-initial-hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 backdrop-blur-md rounded-lg px-4 py-3 flex items-center gap-4 text-white pointer-events-auto"
+  class="is-initial-hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 backdrop-blur-md rounded-lg px-4 py-3 text-white pointer-events-auto overflow-hidden min-w-[320px]"
 >
-  <!-- Speed -->
-  <label class="text-sm whitespace-nowrap">speed</label>
-  <input
-    type="range"
-    min="0"
-    max="100"
-    step="1"
-    [(ngModel)]="ui.speed"
-    (input)="onSpeedChange()"
-    class="w-56 accent-indigo-400"
-  />
+  <!-- Title / Mode badge -->
+  <div class="mb-2 flex items-center gap-3">
+    <span class="text-xs uppercase tracking-wide opacity-70">Mode</span>
+    <span class="text-xs px-2 py-0.5 rounded bg-white/10">{{ ui.effect }}</span>
+  </div>
 
-  <!-- Color (hue) -->
-  <label class="text-sm whitespace-nowrap">color</label>
-  <input
-    type="range"
-    min="0"
-    max="360"
-    step="1"
-    [(ngModel)]="ui.hue"
-    (input)="onHueChange()"
-    class="w-56 color-input"
-    [style.--hue]="ui.hue"
-  />
+  <div class="sizer">
+    <!-- Panels container -->
+    <div class="relative">
+      <!-- RIPPLE + PARTICLES -->
+      <div class="space-y-3 panel" id="panel-ripple">
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">speed</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            [(ngModel)]="ui.speed"
+            (input)="onSpeedChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{ ui.speed }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">color</label>
+          <input
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+            [(ngModel)]="ui.hue"
+            (input)="onHueChange()"
+            class="w-56 color-input"
+            [style.--hue]="ui.hue"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{ ui.hue }}</span>
+        </div>
+      </div>
+
+      <!-- DRAW -->
+      <div class="space-y-3 panel" id="panel-draw">
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">brush</label>
+          <input
+            type="range"
+            min="1"
+            max="40"
+            step="1"
+            [(ngModel)]="ui.draw.brushSize"
+            (input)="onDrawChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.draw.brushSize
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">opacity</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [(ngModel)]="ui.draw.opacity"
+            (input)="onDrawChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.draw.opacity | number : "1.0-2"
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">smoothing</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [(ngModel)]="ui.draw.smoothing"
+            (input)="onDrawChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.draw.smoothing | number : "1.0-2"
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">trail</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [(ngModel)]="ui.draw.trail"
+            (input)="onDrawChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.draw.trail | number : "1.0-2"
+          }}</span>
+        </div>
+      </div>
+
+      <!-- GRAVITY -->
+      <div class="space-y-3 panel" id="panel-gravity">
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">strength</label>
+          <input
+            type="range"
+            min="0"
+            max="3"
+            step="0.01"
+            [(ngModel)]="ui.gravity.strength"
+            (input)="onGravityChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.gravity.strength | number : "1.0-2"
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">radius</label>
+          <input
+            type="range"
+            min="10"
+            max="300"
+            step="1"
+            [(ngModel)]="ui.gravity.radius"
+            (input)="onGravityChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.gravity.radius
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">falloff</label>
+          <select
+            [(ngModel)]="ui.gravity.falloff"
+            (change)="onGravityChange()"
+            class="bg-white/10 rounded px-2 py-1"
+          >
+            <option value="linear">linear</option>
+            <option value="quadratic">quadratic</option>
+            <option value="inverse">inverse</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">damping</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [(ngModel)]="ui.gravity.damping"
+            (input)="onGravityChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <span class="text-xs opacity-70 w-8 text-right">{{
+            ui.gravity.damping | number : "1.0-2"
+          }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="text-sm whitespace-nowrap w-16">wells</label>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="1"
+            [(ngModel)]="ui.gravity.maxWells"
+            (input)="onGravityChange()"
+            class="w-56 accent-indigo-400"
+          />
+          <button
+            class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+            (click)="clearGravityWells()"
+          >
+            clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Mode Switcher -->
-<div class="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-50">
+<div
+  #mode
+  class="is-initial-hidden fixed bottom-[10%] left-1/2 -translate-x-1/2 z-50"
+>
   <div class="flex gap-6 text-white">
     <span
       *ngFor="let effect of effectArray"

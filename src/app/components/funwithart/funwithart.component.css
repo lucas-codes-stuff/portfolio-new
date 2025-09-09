@@ -7,3 +7,19 @@ canvas {
   transform: translateY(-6px);
   will-change: transform, opacity;
 }
+
+.panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
