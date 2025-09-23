@@ -15,7 +15,10 @@
 <!-- Controls WRAPPER (always mounted) -->
 <div
   #controlsContainer
-  class="is-initial-hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 backdrop-blur-md rounded-lg px-4 py-3 text-white pointer-events-auto overflow-hidden min-w-[320px]"
+  class="is-initial-hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 backdrop-blur-md rounded-lg px-4 py-3 text-white pointer-events-auto overflow-hidden min-w-[400px]"
+  (mouseenter)="isOverUI = true"
+  (mouseleave)="isOverUI = false"
+  (mousedown)="$event.stopPropagation()"
 >
   <!-- Title / Mode badge -->
   <div class="mb-2 flex items-center gap-3">
@@ -61,14 +64,13 @@
       <!-- DRAW -->
       <div class="space-y-3 panel" id="panel-draw">
         <div class="flex items-center gap-3">
-          <label class="text-sm whitespace-nowrap w-16">brush</label>
+          <label class="text-sm whitespace-nowrap w-16 mr-2">brush</label>
           <input
             type="range"
             min="1"
             max="40"
             step="1"
             [(ngModel)]="ui.draw.brushSize"
-            (input)="onDrawChange()"
             class="w-56 accent-indigo-400"
           />
           <span class="text-xs opacity-70 w-8 text-right">{{
@@ -77,14 +79,13 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <label class="text-sm whitespace-nowrap w-16">opacity</label>
+          <label class="text-sm whitespace-nowrap w-16 mr-2">opacity</label>
           <input
             type="range"
             min="0"
             max="1"
             step="0.01"
             [(ngModel)]="ui.draw.opacity"
-            (input)="onDrawChange()"
             class="w-56 accent-indigo-400"
           />
           <span class="text-xs opacity-70 w-8 text-right">{{
@@ -93,14 +94,13 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <label class="text-sm whitespace-nowrap w-16">smoothing</label>
+          <label class="text-sm whitespace-nowrap w-16 mr-2">smoothing</label>
           <input
             type="range"
             min="0"
             max="1"
             step="0.01"
             [(ngModel)]="ui.draw.smoothing"
-            (input)="onDrawChange()"
             class="w-56 accent-indigo-400"
           />
           <span class="text-xs opacity-70 w-8 text-right">{{
@@ -109,19 +109,52 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <label class="text-sm whitespace-nowrap w-16">trail</label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            [(ngModel)]="ui.draw.trail"
-            (input)="onDrawChange()"
-            class="w-56 accent-indigo-400"
-          />
-          <span class="text-xs opacity-70 w-8 text-right">{{
-            ui.draw.trail | number : "1.0-2"
-          }}</span>
+            <label class="text-sm whitespace-nowrap w-16">color</label>
+
+            <!-- Swatch + native picker -->
+            <label class="relative inline-flex items-center">
+                <input
+                type="color"
+                [(ngModel)]="ui.draw.colorHex"
+                (input)="onDrawColorChange(ui.draw.colorHex)"
+                class="h-6 w-10 rounded border-0 bg-transparent p-0 outline-none cursor-pointer"
+                style="appearance: none;"
+                />
+                <!-- tiny border ring for visibility on dark bg -->
+                <span
+                class="pointer-events-none absolute inset-0 rounded ring-1 ring-white/30"
+                aria-hidden="true"
+                ></span>
+            </label>
+
+            <div class="flex gap-1.5">
+                <button
+                *ngFor="let c of ['#69a7ff','#8b5cf6','#22d3ee','#34d399','#f59e0b','#ef4444','#f472b6','#e5e7eb']"
+                class="h-5 w-5 rounded-full ring-1 ring-white/30 hover:ring-white/60"
+                [style.background]="c"
+                (click)="onDrawColorChange(c)"
+                title="{{c}}"
+                type="button"
+                ></button>
+            </div>
+        </div>
+
+        <!-- Tools row -->
+        <div class="flex items-center gap-3">
+            <label class="text-sm whitespace-nowrap w-16">tool</label>
+
+            <!-- Eraser toggle -->
+            <label class="flex items-center gap-2 text-xs bg-white/10 rounded px-2 py-1 cursor-pointer select-none">
+            <input type="checkbox"
+                    [(ngModel)]="ui.draw.isEraser"/>
+            eraser
+            </label>
+
+            <!-- Clear button -->
+            <button class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+                    (click)="onClear()">
+            clear
+            </button>
         </div>
       </div>
 
@@ -201,7 +234,7 @@
           />
           <button
             class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20"
-            (click)="clearGravityWells()"
+            (click)="onClear()"
           >
             clear
           </button>
@@ -215,11 +248,14 @@
 <div
   #mode
   class="is-initial-hidden fixed bottom-[10%] left-1/2 -translate-x-1/2 z-50"
+  (mouseenter)="isOverUI = true"
+  (mouseleave)="isOverUI = false"
+  (mousedown)="$event.stopPropagation()"
 >
   <div class="flex gap-6 text-white">
     <span
       *ngFor="let effect of effectArray"
-      (click)="onEffectSelect(effect, $event)"
+      (pointerdown)="onEffectSelect(effect, $event)"
       [class.font-bold]="ui.effect === effect"
       class="effect-item inline-block cursor-pointer text-sm transition"
     >
