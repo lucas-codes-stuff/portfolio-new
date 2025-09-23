@@ -4,8 +4,8 @@
         <div *ngFor="let link of navItems; let i = index">
           <a
             #navLink
-            class="inline-block transition-transform duration-300 font-[500] text-white"
-            [routerLink]="link === 'home' ? '/' : '/' + link.toLowerCase()"
+            class="relative inline-block transition-transform duration-300 font-[500] text-white z-[60] pointer-events-auto"
+            [routerLink]="link === 'home' ? '/' : '/' + (routeMap[link] || link.toLowerCase())"
             (mouseenter)="animateNavLink(i)"
             (mouseleave)="resetNavLink(i)"
           >
