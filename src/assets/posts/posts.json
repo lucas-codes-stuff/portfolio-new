@@ -1,16 +1,16 @@
 [
   {
-    "slug": "chromatica-challenges",
-    "title": "🎵 The Rise and Pause of Chromatica",
-    "date": "2025-4-7",
-    "description": "Building (and Almost Launching) a Mood-Based Music Generator",
-    "image": "/assets/projects/chromatica.jpg"
+    "slug": "machine-of-madness",
+    "title": "a machine of madness: meditations of a morsel",
+    "date": "2026-07-24",
+    "description": "what does it mean to be an engineer in tod-*ai*-ys society?",
+    "image": ""
   },
   {
-    "slug": "vibe_coding_rant",
-    "title": "“Vibe Coding” and the Myth of Agentic AI",
-    "date": "2025-5-9",
-    "description": "A Rant (and a Reality Check)",
-    "image": "/assets/projects/vibe-coding.png"
+    "slug": "chromatica-challenges",
+    "title": "chromatica: autopsy of a mood engine",
+    "date": "2025-4-7",
+    "description": "building and almost launching a mood-based music generator",
+    "image": "/assets/projects/chromatica.jpg"
   }
 ]

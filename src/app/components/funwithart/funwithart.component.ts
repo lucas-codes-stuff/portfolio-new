@@ -76,6 +76,7 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
   controlsVisible = true;
 
   ngOnInit() {
+    document.body.classList.add('no-pattern');
     // Listen for route animation completion
     this.animationService.routeAnimationComplete
       .pipe(
@@ -110,6 +111,7 @@ export class FunWithArtComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
     this.p5Instance?.remove();
     this.p5Instance = null;
+    document.body.classList.remove('no-pattern');
   }
 
   private initializeComponentAnimations() {
