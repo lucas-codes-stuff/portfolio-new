@@ -1,107 +1,61 @@
-# 🎵 The Rise and Pause of Chromatica  
+# chromatica: autopsy of a mood engine
 
-## Building (and Almost Launching) a Mood-Based Music Generator
-
-### ✨ The Dream
-
-It started with a simple but powerful idea: what if music could *amplify* or *soothe* your mood in real time? Feeling joyful? Let’s double down with something energetic and upbeat. Feeling low? Here’s something that understands you. Not just algorithmically, but emotionally.
-
-I've always believed music can be more than background noise. It’s a mirror to how we feel, and sometimes, the thing that helps us feel something new. I wanted to build something that captured that emotional power and bring it to users in a personalized, intelligent way.
-
-I knew this would be ambitious. So I reached out to Kyra Moore. She is a talented developer I met through LinkedIn. We quickly realized we had a complementary vision and skill set, and dove into planning. Our first meeting was all wireframes, napkin-math on neural net usage, and a shared obsession with clean code and great UX.
-
-That idea became **Chromatica!** A web application that would allow users to input their mood, context, or activity, and receive a curated playlist that truly *fit* them. Not just a guess, but something crafted using machine learning and deep audio feature mapping.
+## building and almost launching a mood-based music generator
 
 ---
 
-### 🧠 How It Worked
+### the dream and the napkin math
 
-Chromatica was powered by a browser-based neural network trained to understand a combination of:
+it started with a premise that sounds almost naive in hindsight: what if music wasn't just background noise while you churn through tickets, but an actual mirror to how you feel? feeling good? amplify it. feeling like garbage at 2 AM? play something that gets it.
 
-- **Emotional states** (happy, sad, anxious, motivated…)
-- **Events or activities** (e.g. workout, relaxing, commuting, studying)
-- **Music genres** (electronic, lo-fi, indie, ambient, etc.)
+i've always believed music has that kind of raw leverage over human emotion. so i reached out to Kyra Moore, a developer i met on LinkedIn. we had complementary skill sets and a shared delusion that we could actually ship this thing. our first meeting was all napkin-math on neural net compute, wireframes sketched on whatever app we could access, and an obsession with clean UX.
 
-We started by generating a base dataset. One that mapped these inputs to the **audio features** that Spotify exposes: things like tempo, energy, danceability, acousticness, and valence. These features describe a song not by genre or title, but by how it *feels*.
-
-Since we didn’t have access to a huge labeled dataset, I leaned on ChatGPT to help generate training pairs. Then I wrote a Python script that varied these values to simulate real-world variance. Think: a “sad + indie” moment might lean toward low energy, high acousticness, and low valence, but there’s wiggle room, so we made sure our model could handle nuance.
-
-We one-hot encoded inputs and normalized the outputs to train the model, and here's the wild part: we ran all of this *in the browser* using TensorFlow.js.
-
-We stored and served models and metadata using **Supabase**, which let us persist user sessions and run serverless functions. When a user selected a mood, event, or genre, we’d feed the encoded array into the model, grab the predicted audio features, then plug them into Spotify’s [recommendation endpoint](https://developer.spotify.com/documentation/web-api/reference/get-recommendations) to fetch matching tracks.
-
-The results? Genuinely impressive. It felt like magic when the system picked songs that *hit* exactly how you wanted to feel.
+we called it **Chromatica**. the goal was simple: you input your current mood, activity, or context, and instead of relying on generic playlist algorithms, the app would generate a single or sequence of songs mapped strictly to your emotional state using deep audio feature mapping.
 
 ---
 
-### 🛠️ Building the App
+### how the engine actually ran
 
-We split the work based on strengths, but collaborated heavily across every feature.
+the core was a browser-based neural network trained to link three distinct vectors: emotional states, activities, and music genres.
 
-- I built the neural network, data pipelines, and frontend integration using **Angular** and **TensorFlow.js**
-- Kyra led the UX strategy and the Spotify integration logic, crafting an interface that was sleek but simple enough for anyone to use
-- We both worked on authentication, Supabase integration, and overall app flow
-- Every feature was documented and version-controlled — this was a real, launchable product
+because labeled datasets for human feelings don't just exist sitting cleanly in a public S3 bucket, i leaned on ChatGPT to generate initial training pairs, then wrote a Python script to inject random variance so the model could handle human nuance. a "sad + indie" state meant cranking acousticness up, pulling valence down, and dialing down energy—but leaving room for unpredictable edge cases.
 
-The UI allowed users to choose a combination of feelings or activities, see mood-based visual transitions, and receive a curated playlist that matched that emotional context. We even had designs for future features — like audio previews, saved sessions, and responsive modals for different listening modes.
+we normalized the outputs, one-hot encoded the inputs, and ran inference directly in the browser using TensorFlow.js. Supabase handled our session persistence and serverless logic. when you selected a mood, the model predicted target audio features—valence, danceability, energy—and fed those straight into Spotify’s recommendation endpoint.
 
-By all accounts, **we were at 95%**. Just a few UI refinements and final testing sprints away from soft-launching.
+and honestly? when it worked, it felt like black magic. the model picked tracks that hit with eerie emotional precision.
 
 ---
 
-### 💔 What Went Wrong
+### building 95% of a ghost
 
-Then... the Spotify API changed.
+we split the labor cleanly:
 
-Specifically, the recommendation endpoint (the one at the *core* of our app) was deprecated. Access became restricted. We didn’t have a production quota extension submitted yet, and suddenly, we had no access.
+- i handled the Angular frontend, data pipelines, and TensorFlow.js integration
+- Kyra spearheaded the UX design and the Spotify integration logic
+- we both fought through auth, Supabase schemas, and overall app flow
 
-We tried to pivot... fast. We explored alternate APIs and open music databases, but nothing could match the specificity and flexibility of Spotify's endpoint for this use case. Every workaround either just didn't work with any network changes or added so much complexity it would’ve delayed the project indefinitely.
-
-We were stuck.
-
-And after everything (the excitement, the hours of design, the months of building and refining) we had to step back.
+by all accounts, we were at 95%. the UI had smooth mood transitions, curated outputs, and designs waiting in the wings for saved sessions and modal players. we were one testing sprint away from a soft launch.
 
 ---
 
-### 🧠 What We Learned
+### the rugpull
 
-The end of Chromatica wasn’t a failure. It was a field test in what it takes to build something innovative with real-world dependencies.
+then Spotify pulled the plug.
 
-Here’s what we took from it:
+without warning, Spotify deprecated the exact recommendation endpoint our system depended on. access was instantly restricted, our production quota request was stranded, and the core engine of our app turned into a paperweight overnight.
 
-- **Third-party APIs aren’t forever.** Stay on top of changelogs, roadmap discussions, and submit production requests early.
-- **Dependencies need backups.** If one key feature can break your app, your system isn't resilient enough yet.
-- **Collaboration multiplies progress.** This app never would’ve existed without the synergy Kyra and I brought to it.
-- **Build to learn.** Even if a project doesn’t launch, the knowledge it creates will pay off in the next one.
+we tried to pivot fast—scouring open music databases and alternative APIs—but nothing offered the granular audio feature mapping Spotify had. every workaround was either too brittle or added so much architectural complexity that it wasn't the same app anymore. we were stuck staring at a polished shell with no engine.
 
 ---
 
-### 🎯 What’s Next
+### post-mortem
 
-Chromatica might be on hold, but the core ideas live on.
+it’s easy to look back at an unlaunched project and call it wasted cycles. but Chromatica was less of a failure and more of an expensive field test in third-party fragility.
 
-We’re already thinking about next steps! They’re even more ambitious:
+if you build your core value proposition on top of someone else's API, you don't own a product—you're renting a sandbox until the landlord changes the locks. submit your quota requests early, build fallbacks before you write feature code, and remember that the real win isn't always the URL you deploy. it's the skills and collaboration you keep when the server goes down.
 
-- **Port the concept to AI-generated music**: Instead of pulling from Spotify’s catalog, what if the system composed its own emotional melodies using models like Riffusion or Magenta?
-- **Explore wellness integrations**: Could this be part of a journaling or meditation app, where music becomes a therapeutic tool?
-- **Use the model in a creative tool**: Let artists or indie creators generate music moods for visual projects. Something like videos, games, or art installations.
-
-I’m also thinking about how we can open-source parts of this. The one-hot encoding strategies, the emotion-to-audio map, even the training logic. Those could help other developers and researchers exploring the emotional side of music + AI.
-
-Chromatica may not have launched, but it’s already shaped the next version of how I build, collaborate, and innovate.
+onward and upward.
 
 ---
 
-### 🙌 Final Words
-
-Chromatica was a bold idea. And even though it didn’t cross the finish line, it changed how I think about building apps.
-
-It reminded me that:
-
-- **Great projects don’t have to be published to be powerful**
-- **The right collaborator makes everything better**
-- **And even when APIs break, your momentum doesn’t have to**
-
-Onward and upward. 🚀
-
-**→ Got questions about Chromatica? Want to collaborate on something similar? [Let’s connect!](https://github.com/lucas-codes-stuff)**
+**→ got questions about Chromatica or want to collaborate on something similar? [let’s connect!](https://github.com/lucas-codes-stuff)**

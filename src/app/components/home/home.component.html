@@ -11,13 +11,22 @@
         <span #line2Start></span
         ><span
           #line2Highlight
-          class="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent"
+          class="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent"
         ></span>
         <span #cursor2 class="absolute left-full animate-pulse">|</span>
     </span>
     <span class="relative">
-      <span #line3 class="inline-block min-w-[1ch]"></span>
-      <span #cursor3 class="absolute left-full animate-pulse">|</span>
+      <span #line3Start class="inline-block min-w-[1ch]"></span
+      ><span
+        #line3Highlight1
+        class="bg-gradient-to-r from-lime-500 to-green-500 bg-clip-text text-transparent"
+      ></span
+      ><span #line3Subline></span
+      ><span
+        #line3Highlight2
+        class="bg-gradient-to-r from-rose-700 to-red-500 bg-clip-text text-transparent"
+      ></span
+      ><span #cursor3 class="absolute left-full animate-pulse">|</span>
     </span>
   </div>
 

@@ -16,7 +16,10 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild('line1') line1!: ElementRef;
   @ViewChild('line2Start') line2Start!: ElementRef;
   @ViewChild('line2Highlight') line2Highlight!: ElementRef;
-  @ViewChild('line3') line3!: ElementRef;
+  @ViewChild('line3Start') line3Start!: ElementRef;
+  @ViewChild('line3Highlight1') line3Highlight1!: ElementRef;
+  @ViewChild('line3Subline') line3Subline!: ElementRef;
+  @ViewChild('line3Highlight2') line3Highlight2!: ElementRef;
   @ViewChild('cursor1') cursor1!: ElementRef;
   @ViewChild('cursor2') cursor2!: ElementRef;
   @ViewChild('cursor3') cursor3!: ElementRef;
@@ -81,11 +84,36 @@ export class HomeComponent implements AfterViewInit {
       },
     });
   
-    gsap.to(this.line3.nativeElement, {
-      text: { value: 'i build things for the internet.', delimiter: '' },
-      duration: 1.5,
+    gsap.to(this.line3Start.nativeElement, {
+      text: { value: "i build full-stack applications for users focused on", delimiter: '' },
+      duration: 2,
       delay: 2.5,
       ease: 'none',
+      onComplete: () => {
+        gsap.to(this.line3Highlight1.nativeElement, {
+          text: { value: " quality ", delimiter: '' },
+          duration: 0.5,
+          ease: 'none',
+          onComplete: () => {
+            gsap.to(this.line3Subline.nativeElement, {
+              text: { value: "over ", delimiter: '' },
+              duration: 0.3,
+              ease: 'none',
+              onComplete: () => {
+                gsap.to(this.line3Highlight2.nativeElement, {
+                  text: { value: ' quantity.', delimiter: '' },
+                  duration: 0.5,
+                  ease: 'none',
+                  onComplete: () => {
+                    this.cursor3.nativeElement.classList.remove('animate-pulse');
+                    this.cursor3.nativeElement.style.opacity = '0';
+                  },
+                });
+              },
+            });
+          },
+        });
+      },
     });
 
     gsap.to(this.bioLine1.nativeElement, {
